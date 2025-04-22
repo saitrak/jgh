@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raidpo AI - Ultimate AI Tools for Every Need</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #0f0f0f;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 {
+      font-weight: bold;
+      margin: 0;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Auth Page */
+    .auth-page {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .auth-container {
+      background-color: #1a1a1a;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+      color: #ccc;
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .auth-tab.active {
+      color: #ff6f61;
+    }
+
+    .auth-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #ff6f61;
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #333;
+      border-radius: 5px;
+      background-color: #333;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #ff6f61;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 1rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .auth-btn:hover {
+      background-color: #ff3b2f;
+    }
+
+    .google-btn {
+      width: 100%;
+      padding: 1rem;
+      background-color: #4285F4;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .google-btn:hover {
+      background-color: #3367D6;
+    }
+
+    .auth-error {
+      color: #ff6f61;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+
+    .auth-footer a {
+      color: #ff6f61;
+      text-decoration: underline;
+    }
+
+    /* Cookies Banner */
+    .cookies-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #1a1a1a;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 999;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .cookies-content {
+      flex: 1;
+      margin-right: 1rem;
+    }
+
+    .cookies-content p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .cookies-content a {
+      color: #ff6f61;
+      text-decoration: underline;
+    }
+
+    .cookies-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .cookies-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .cookies-accept {
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+    }
+
+    .cookies-decline {
+      background-color: transparent;
+      color: #ccc;
+      border: 1px solid #ccc;
+    }
+
+    /* Homepage (hidden initially) */
+    .homepage {
+      display: none;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .hero-content {
+      z-index: 1;
+    }
+
+    .hero-content h1 {
+      font-size: 4.5rem;
+      margin-bottom: 1rem;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .hero-content p {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      animation: fadeIn 3s ease-in-out;
+    }
+
+    .cta-button {
+      padding: 1rem 2rem;
+      background-color: #fff;
+      color: #ff3b2f;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: transform 0.3s, background-color 0.3s;
+      animation: bounce 2s infinite;
+    }
+
+    .cta-button:hover {
+      background-color: #ff6f61;
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Tool Categories */
+    .tool-categories {
+      padding: 4rem 2rem;
+      background-color: #1a1a1a;
+      text-align: center;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .tool-card {
+      background-color: #333;
+      padding: 2rem;
+      border-radius: 20px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #ff6f61, #ff3b2f);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(255, 111, 97, 0.3);
+    }
+
+    .tool-card:hover::before {
+      opacity: 1;
+    }
+
+    .tool-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #ff6f61;
+    }
+
+    .tool-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tool-card p {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .tool-card a {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      transition: background-color 0.3s;
+    }
+
+    .tool-card a:hover {
+      background-color: #ff3b2f;
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem;
+      background-color: #0f0f0f;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      margin-bottom: 1rem;
+    }
+
+    .footer-links a {
+      margin: 0 0.5rem;
+      color: #ccc;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #ff6f61;
+    }
+
+    .social-links {
+      margin-bottom: 1rem;
+    }
+
+    .social-links a {
+      margin: 0 0.5rem;
+      font-size: 1.5rem;
+      transition: color 0.3s;
+    }
+
+    .social-links a:hover {
+      color: #ff6f61;
+    }
+
+    /* User Profile */
+    .user-profile {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #ff6f61;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .user-menu {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background-color: #1a1a1a;
+      border-radius: 5px;
+      padding: 0.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      display: none;
+    }
+
+    .user-menu.active {
+      display: block;
+    }
+
+    .user-menu a {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: #ccc;
+      transition: color 0.3s;
+    }
+
+    .user-menu a:hover {
+      color: #ff6f61;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-content h1 {
+        font-size: 3rem;
+      }
+      
+      .hero-content p {
+        font-size: 1.2rem;
+      }
+      
+      .tool-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+      
+      .cookies-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+      
+      .cookies-content {
+        margin-right: 0;
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Page (shown by default) -->
+  <div class="auth-page" id="authPage">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>Raidpo AI</h1>
+        <p>Access powerful AI tools with your account</p>
+      </div>
+      
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-tab="login">Login</div>
+        <div class="auth-tab" data-tab="signup">Sign Up</div>
+      </div>
+      
+      <div id="loginForm" class="auth-form active">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required>
+        </div>
+        
+        <button id="loginBtn" class="auth-btn">Login</button>
+        <button id="googleLoginBtn" class="google-btn">
+          <i class="fab fa-google"></i> Continue with Google
+        </button>
+        
+        <div id="loginError" class="auth-error"></div>
+        
+        <div class="auth-footer">
+          Don't have an account? <a href="#" id="switchToSignup">Sign up</a>
+        </div>
+      </div>
+      
+      <div id="signupForm" class="auth-form">
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" placeholder="Enter your full name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="Enter your email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="Create a password (min 6 chars)" required>
+        </div>
+        
+        <button id="signupBtn" class="auth-btn">Sign Up</button>
+        <button id="googleSignupBtn" class="google-btn">
+          <i class="fab fa-google"></i> Continue with Google
+        </button>
+        
+        <div id="signupError" class="auth-error"></div>
+        
+        <div class="auth-footer">
+          Already have an account? <a href="#" id="switchToLogin">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cookies Banner (shown after auth) -->
+  <div id="cookiesBanner" class="cookies-banner" style="display: none;">
+    <div class="cookies-content">
+      <p>We use cookies to enhance your experience. By continuing to use Raidpo AI, you agree to our use of cookies. <a href="/privacy-policy.html">Learn more</a></p>
+    </div>
+    <div class="cookies-buttons">
+      <button class="cookies-btn cookies-decline" id="declineCookies">Decline</button>
+      <button class="cookies-btn cookies-accept" id="acceptCookies">Accept</button>
+    </div>
+  </div>
+
+  <!-- Homepage (hidden initially) -->
+  <div class="homepage" id="homepage">
+    <!-- User Profile -->
+    <div class="user-profile" id="userProfile">
+      <div class="user-avatar" id="userAvatar">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="user-menu" id="userMenu">
+        <a href="#" id="userName"></a>
+        <a href="#" id="signOutBtn">Sign Out</a>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Raidpo AI</h1>
+        <p>Ultimate AI Tools - Free, Fast, and Powerful</p>
+        <a href="#tools" class="cta-button">Explore Tools</a>
+      </div>
+    </section>
+
+    <!-- Tool Categories -->
+    <section id="tools" class="tool-categories">
+      <div class="tool-grid">
+        <!-- CodeCraft Pro -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-code"></i></div>
+          <h3>CodeCraft Pro</h3>
+          <p>Write, preview, merge, and separate HTML, CSS, and JavaScript code.</p>
+          <a href="/CodeCraft-Pro.html">Use Tool</a>
+        </div>
+
+        <!-- Book Library -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-book"></i></div>
+          <h3>Book Library</h3>
+          <p>Search and read legal books directly in the app.</p>
+          <a href="/Book-Library.html">Use Tool</a>
+        </div>
+
+        <!-- Age Calculator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-calculator"></i></div>
+          <h3>Age Calculator</h3>
+          <p>Calculate your age in years, months, and days.</p>
+          <a href="/Age-Calculator.html">Use Tool</a>
+        </div>
+
+        <!-- QR Code to Link -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+          <h3>QR Code to Link</h3>
+          <p>Extract links or text from QR codes.</p>
+          <a href="/QR-Code-to-Link.html">Use Tool</a>
+        </div>
+
+        <!-- QR Code Generator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+          <h3>QR Code Generator</h3>
+          <p>Generate QR codes for URLs or text.</p>
+          <a href="/QR-Code-Generator.html">Use Tool</a>
+        </div>
+
+        <!-- URL Shortener -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-link"></i></div>
+          <h3>URL Shortener</h3>
+          <p>Shorten your URLs with ease.</p>
+          <a href="/URL-Shortener.html">Use Tool</a>
+        </div>
+
+        <!-- Image to Prompt -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-image"></i></div>
+          <h3>Image to Prompt</h3>
+          <p>Generate accurate prompts from any image.</p>
+          <a href="/Image-to-Prompt.html">Use Tool</a>
+        </div>
+
+        <!-- Image Compressor -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-file-image"></i></div>
+          <h3>Image Compressor</h3>
+          <p>Reduce image size without losing quality.</p>
+          <a href="/IMG-COMPRESSOR.html">Use Tool</a>
+        </div>
+
+        <!-- Background Remover -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-eraser"></i></div>
+          <h3>Background Remover</h3>
+          <p>Remove backgrounds from images instantly with AI.</p>
+          <a href="/BG-REMOVER.html">Use Tool</a>
+        </div>
+
+        <!-- Image Resizer -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-expand"></i></div>
+          <h3>Image Resizer</h3>
+          <p>Resize images to any dimension while maintaining quality.</p>
+          <a href="/IMG-RESIZER.html">Use Tool</a>
+        </div>
+
+        <!-- Image Enhancer -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-magic"></i></div>
+          <h3>Image Enhancer</h3>
+          <p>Enhance image quality with AI-powered tools.</p>
+          <a href="/IMG-ENHANCE.html">Use Tool</a>
+        </div>
+
+        <!-- Text-to-Image Generator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-paint-brush"></i></div>
+          <h3>Text-to-Image Generator</h3>
+          <p>Transform text into stunning images with AI.</p>
+          <a href="/TEXT-TO-IMAGE.html">Use Tool</a>
+        </div>
+
+        <!-- All Language Translator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-language"></i></div>
+          <h3>All Language Translator</h3>
+          <p>Translate text from any language to any language instantly.</p>
+          <a href="/TRANSLATOR.html">Use Tool</a>
+        </div>
+
+        <!-- Text to Speech -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-comment-dots"></i></div>
+          <h3>Text to Speech</h3>
+          <p>Convert text to speech and download the audio file.</p>
+          <a href="/Text-to-Speech.html">Use Tool</a>
+        </div>
+
+        <!-- Knowledge Nexus -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-book"></i></div>
+          <h3>Knowledge Nexus</h3>
+          <p>Explore knowledge, images, and more with AI.</p>
+          <a href="/Knowledge-Nexus.html">Use Tool</a>
+        </div>
+
+        <!-- Currency Converter -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-money-bill-wave"></i></div>
+          <h3>Currency Converter</h3>
+          <p>Convert currencies in real-time with the latest exchange rates.</p>
+          <a href="/Currency-Converter.html">Use Tool</a>
+        </div>
+
+        <!-- YouTube Thumbnail Downloader -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-image"></i></div>
+          <h3>YouTube Thumbnail Downloader</h3>
+          <p>Download high-quality thumbnails from YouTube videos.</p>
+          <a href="/YouTube-Thumbnail-Downloader.html">Use Tool</a>
+        </div>
+
+        <!-- ImageFlow -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <h3>ImageFlow</h3>
+          <p>Upload and manage images with ease.</p>
+          <a href="/ImageFlow.html">Use Tool</a>
+        </div>
+
+        <!-- Hangman Game -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-gamepad"></i></div>
+          <h3>Hangman Game</h3>
+          <p>Play the classic Hangman game with AI-generated words.</p>
+          <a href="/Hangman-Game.html">Play Now</a>
+        </div>
+
+        <!-- Weather App -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-cloud-sun"></i></div>
+          <h3>Weather App</h3>
+          <p>Get real-time weather updates for any city.</p>
+          <a href="/Weather-App.html">Use Tool</a>
+        </div>
+
+        <!-- Interactive Story Generator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-pen"></i></div>
+          <h3>Interactive Story Generator</h3>
+          <p>Create unique stories with AI-powered storytelling.</p>
+          <a href="/Interactive-Story-Generator.html">Use Tool</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="/terms-and-conditions.html">Terms & Conditions</a>
+          <a href="/privacy-policy.html">Privacy Policy</a>
+        </div>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+        <p>© 2025 Raidpo AI | Free & Powerful AI Tools</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
+      authDomain: "raidpo-ai-3c84b.firebaseapp.com",
+      projectId: "raidpo-ai-3c84b",
+      storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
+      messagingSenderId: "41213161184",
+      appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
+      measurementId: "G-7MBZHVFCZR"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    // DOM Elements
+    const authPage = document.getElementById('authPage');
+    const homepage = document.getElementById('homepage');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const googleSignupBtn = document.getElementById('googleSignupBtn');
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
+    const signupName = document.getElementById('signupName');
+    const signupEmail = document.getElementById('signupEmail');
+    const signupPassword = document.getElementById('signupPassword');
+    const loginError = document.getElementById('loginError');
+    const signupError = document.getElementById('signupError');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const switchToSignup = document.getElementById('switchToSignup');
+    const switchToLogin = document.getElementById('switchToLogin');
+    const userProfile = document.getElementById('userProfile');
+    const userAvatar = document.getElementById('userAvatar');
+    const userMenu = document.getElementById('userMenu');
+    const userName = document.getElementById('userName');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const cookiesBanner = document.getElementById('cookiesBanner');
+    const acceptCookies = document.getElementById('acceptCookies');
+    const declineCookies = document.getElementById('declineCookies');
+
+    // Auth Tab Switching
+    authTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        authTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        if (tab.dataset.tab === 'login') {
+          loginForm.classList.add('active');
+          signupForm.classList.remove('active');
+        } else {
+          loginForm.classList.remove('active');
+          signupForm.classList.add('active');
+        }
+      });
+    });
+
+    // Switch between login and signup
+    switchToSignup.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTabs[1].click();
+    });
+
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTabs[0].click();
+    });
+
+    // User Profile Menu Toggle
+    userAvatar.addEventListener('click', () => {
+      userMenu.classList.toggle('active');
+    });
+
+    // Close User Menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!userProfile.contains(e.target)) {
+        userMenu.classList.remove('active');
+      }
+    });
+
+    // Sign Out
+    signOutBtn.addEventListener('click', () => {
+      auth.signOut().then(() => {
+        // Show auth page and hide homepage
+        authPage.style.display = 'flex';
+        homepage.style.display = 'none';
+      }).catch(error => {
+        console.error('Sign out error:', error);
+      });
+    });
+
+    // Check if user has accepted cookies
+    function hasAcceptedCookies(uid) {
+      return localStorage.getItem(`cookiesAccepted_${uid}`) !== null;
+    }
+
+    // Set cookies preference for user
+    function setCookiesPreference(uid, accepted) {
+      localStorage.setItem(`cookiesAccepted_${uid}`, accepted);
+    }
+
+    // Accept cookies
+    acceptCookies.addEventListener('click', () => {
+      auth.currentUser && setCookiesPreference(auth.currentUser.uid, 'true');
+      cookiesBanner.style.display = 'none';
+    });
+
+    // Decline cookies
+    declineCookies.addEventListener('click', () => {
+      auth.currentUser && setCookiesPreference(auth.currentUser.uid, 'false');
+      cookiesBanner.style.display = 'none';
+    });
+
+    // Check Auth State
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in
+        authPage.style.display = 'none';
+        homepage.style.display = 'block';
+        
+        // Show user profile
+        userProfile.style.display = 'flex';
+        userName.textContent = user.displayName || user.email.split('@')[0];
+        
+        // Check if user needs to accept cookies
+        if (!hasAcceptedCookies(user.uid)) {
+          cookiesBanner.style.display = 'flex';
+        }
+      } else {
+        // User is signed out
+        authPage.style.display = 'flex';
+        homepage.style.display = 'none';
+      }
+    });
+
+    // Email Login
+    loginBtn.addEventListener('click', () => {
+      const email = loginEmail.value;
+      const password = loginPassword.value;
+      
+      // Clear previous errors
+      loginError.style.display = 'none';
+      
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          // Login successful, handled by auth state change
+        })
+        .catch(error => {
+          loginError.textContent = error.message;
+          loginError.style.display = 'block';
+        });
+    });
+
+    // Email Sign Up
+    signupBtn.addEventListener('click', () => {
+      const name = signupName.value;
+      const email = signupEmail.value;
+      const password = signupPassword.value;
+      
+      // Clear previous errors
+      signupError.style.display = 'none';
+      
+      if (password.length < 6) {
+        signupError.textContent = 'Password must be at least 6 characters';
+        signupError.style.display = 'block';
+        return;
+      }
+      
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          return userCredential.user.updateProfile({
+            displayName: name
+          });
+        })
+        .then(() => {
+          // Sign up successful, handled by auth state change
+        })
+        .catch(error => {
+          signupError.textContent = error.message;
+          signupError.style.display = 'block';
+        });
+    });
+
+    // Google Login/Signup
+    function signInWithGoogle() {
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          // Google auth successful, handled by auth state change
+        })
+        .catch(error => {
+          const errorElement = loginForm.classList.contains('active') ? loginError : signupError;
+          errorElement.textContent = error.message;
+          errorElement.style.display = 'block';
+        });
+    }
+
+    googleLoginBtn.addEventListener('click', signInWithGoogle);
+    googleSignupBtn.addEventListener('click', signInWithGoogle);
+
+    // Show auth page on load
+    document.addEventListener('DOMContentLoaded', () => {
+      authPage.style.display = 'flex';
+      homepage.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
